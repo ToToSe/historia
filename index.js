@@ -56,6 +56,7 @@ app.use(cors({
   origin: [
     'https://historia-io.herokuapp.com',
     'http://historia-io.herokuapp.com',
+    'https://fr.wikipedia.org',
     'http://localhost:3000',
   ],
   methods: ['OPTIONS', 'GET', 'POST', 'DELETE', 'PUT', 'PATCH'],
