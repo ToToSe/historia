@@ -4,8 +4,7 @@ import './lib/timeline/timeline.js'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state'
 import { useLocation } from "react-router-dom"
-
-import events from './events.js'
+import axios from 'axios'
 
 import _ from 'lodash'
 
@@ -20,13 +19,45 @@ import {
   Popover,
   Grow,
   Chip,
+  Fab,
   IconButton,
   Tooltip,
   Dialog
 } from '@mui/material'
 
-const HEADER_HEIGHT = 16
+import { Add } from '@mui/icons-material'
 
+const HEADER_HEIGHT = 16
+const eras = [
+  {
+    start_date: { year: -3000 },
+    end_date: 476,
+    text: {
+      headline: 'Antiquité',
+    }
+  },
+  {
+    start_date: { year: 476 },
+    end_date: { year: 1453 },
+    text: {
+      headline: 'Moyen Âge',
+    }
+  },
+  {
+    start_date: { year: 1453 },
+    end_date: { year: 1789 },
+    text: {
+      headline: 'Époque moderne'
+    }
+  },
+  {
+    start_date: { year: 1789 },
+    end_date: { year: 2022 },
+    text: {
+      headline: 'Époque contemporaine',
+    }
+  },
+]
 
 function Caption({ icon, name, url }) {
   return (
@@ -68,39 +99,7 @@ function App() {
   const wikipediaRef = useRef(null)
   const geacronRef = useRef(null)
 
-  const [datas, setDatas] = useState({
-    events,
-    eras: [
-      {
-        start_date: { year: -3000 },
-        end_date: 476,
-        text: {
-          headline: 'Antiquité',
-        }
-      },
-      {
-        start_date: { year: 476 },
-        end_date: { year: 1453 },
-        text: {
-          headline: 'Moyen Âge',
-        }
-      },
-      {
-        start_date: { year: 1453 },
-        end_date: { year: 1789 },
-        text: {
-          headline: 'Époque moderne'
-        }
-      },
-      {
-        start_date: { year: 1789 },
-        end_date: { year: 2022 },
-        text: {
-          headline: 'Époque contemporaine',
-        }
-      },
-    ]
-  })
+  const [datas, setDatas] = useState(null)
 
   const [page, setPage] = useState({})
   const [year, setYear] = useState(0)
@@ -124,31 +123,50 @@ function App() {
     hash_bookmark: true,
   }
 
-
   useEffect(() => {
-    let event = datas.events.find(event => `#event-${event.unique_id}` === window.location.hash)
+    axios.get('http://localhost:8080/periods').then(res => {
+      let _datas = {
+        eras,
+        events: res.data.reduce((a, b) => [...a, ...b.events.map(event => ({ ...event, group: b.name }))], []).map((e, i) => ({
+          ...e,
+          text: {
+            headline: e.title
+          },
+          unique_id: i.url,
+          start_date: { year: e.year }
+        })),
+      }
 
-    if (!!event) {
-      setPage(event)
-      setYear(event.year)
-      setMapYear(event.year)
-    } else {
-      setPage(datas.events[0])
-      setYear(datas.events[0].year)
-      setMapYear(datas.events[0].year)
-    }
+      setDatas(_datas)
 
-    window.history.replaceState = new Proxy(window.history.replaceState, {
-      apply: (target, thisArg, argArray) => {
-        let event = datas.events.find(event => `#event-${event.unique_id}` === argArray[2])
-        if (!!event) {
-          setPage(event)
-          setYear(event.year)
-          iframeYear(event.year)
-        }
-        return target.apply(thisArg, argArray)
-      },
-    })
+      let event = _datas.events.find(event => `#event-${string_to_slug(event.url)}` === window.location.hash)
+
+      if (!!event) {
+        setPage(event)
+        setYear(event.year)
+        setMapYear(event.year)
+      } else {
+        setPage(_datas.events[0])
+        setYear(_datas.events[0].year)
+        setMapYear(_datas.events[0].year)
+      }
+
+      if (!timeline && timelineRef.current) {
+        setTimeline(new window.TL.Timeline('timeline', _datas, timelineOptions))
+      }
+
+      window.history.replaceState = new Proxy(window.history.replaceState, {
+        apply: (target, thisArg, argArray) => {
+          let event = _datas.events.find(event => `#event-${event.unique_id}` === argArray[2])
+          if (!!event) {
+            setPage(event)
+            setYear(event.year)
+            iframeYear(event.year)
+          }
+          return target.apply(thisArg, argArray)
+        },
+      })
+    });
   }, [])
 
   const iframeYearD = _.debounce(function (newYear) {
@@ -163,14 +181,8 @@ function App() {
     }
   }
 
-  useEffect(() => {
-    if (!timeline && timelineRef.current) {
-      setTimeline(new window.TL.Timeline('timeline', datas, timelineOptions))
-    }
-  }, [timelineRef.current])
-
   return (
-    <Box className="App">
+    datas === null ? <Box></Box> : <Box className="App">
       <Box style={{
         background: "rgb(141 141 141 / 20%)",
         width: "100%",
@@ -251,7 +263,7 @@ function App() {
                     borderColor: mapOpen ? 'white' : "white",
                     color: mapOpen ? '#2c3e50' : "white",
                     textTransform: 'none',
-                    fontSize: mapOpen ? 14 : 16
+                    fontSize: 14
                   }} variant="outlined" disabled={isNaN(year)} onClick={() => setMapOpen(!mapOpen)} startIcon={<i style={{
                     marginRight: 16
                   }} className={mapOpen ? 'fa-solid fa-book' : `fa-solid fa-location-pin`}></i>}>
@@ -303,7 +315,7 @@ function App() {
                   display: mapOpen ? 'block' : 'none',
                 }}
               >
-                <iframe ref={geacronRef} style={{ overflow: 'hidden', border: 'none', width: '100%', height: '100%' }} src={`/geacron?year=${mapYear}`} />
+                <iframe ref={geacronRef} style={{ overflow: 'hidden', border: 'none', width: '100%', height: '100%' }} src={`http://localhost:8080/geacron?year=${mapYear}`} />
                 {mapOpen && <Caption icon={'http://geacron.com/wp-content/themes/atahualpa/images/favicon/geacron.ico'} name={'Geacron'} url={'http://geacron.com/'} />}
               </Box>}
 
@@ -314,7 +326,7 @@ function App() {
                   width: '100%'
                 }}
               >
-                <iframe id="wikipedia" style={{ overflow: 'hidden', border: 'none', width: '100%', height: '100%' }} src={`/wiki?url=${page.url}`} />
+                <iframe id="wikipedia" style={{ overflow: 'hidden', border: 'none', width: '100%', height: '100%' }} src={`http://localhost:8080/wiki?url=${page.url}`} />
                 {!mapOpen && <Caption icon={'https://upload.wikimedia.org/wikipedia/commons/a/a7/Wikipedia_logo_v3.svg'} name={'Wikipedia'} url={'https://fr.wikipedia.org/'} />}
               </Box>}
             </Box>
@@ -330,12 +342,67 @@ function App() {
               boxShdadow: 'inset 5px 19px 18px -8px rgba(0,0,0,0.51)'
             }}
           >
+            <PopupState variant="popover">
+              {(popupState) => (
+                <Box boxShadow={6}>
+                  <Button style={{
+                    position: "absolute",
+                    top: "0px",
+                    right: "0px",
+                    zIndex: 1556,
+                    borderRadius: "0px 0px 0px 8px",
+                    height: "36px",
+                    width: 140,
+                    justifyContent: 'space-between',
+                    backgroundColor: "#2c3e50",
+                    borderColor: "white",
+                    color: "white",
+                    textTransform: 'none',
+                    fontSize: 14
+                  }} variant="contained" endIcon={<i style={{}} class="fa-solid fa-caret-down"></i>} {...bindTrigger(popupState)}>
+                    Périodes
+                  </Button>
+                  <Popover
+                    {...bindPopover(popupState)}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'right',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                    PaperProps={{
+                      style: {
+                        borderRadius: '8px 0px 0px 8px'
+                      }
+                    }}
+                  >
+                    <Box style={{
+                      width: 400,
+                      position: 'relative',
+                      zIndex: 2000,
+                      height: 200
+                    }}>
+                      <Grow in={popupState.isOpen}>
+                        <Fab size="small" color="primary" style={{
+                          position: 'absolute',
+                          bottom: 16,
+                          right: 10
+                        }}>
+                          <Add />
+                        </Fab>
+                      </Grow>
+                    </Box>
+                  </Popover>
+                </Box>
+              )}
+            </PopupState>
             <Box id="timeline" boxShadow={1} ref={timelineRef} style={{
               borderRadius: '0px 0px 8px 8px',
               overflow: 'hidden',
               width: '100%'
-            }}>
-            </Box>
+            }} />
             <Caption icon={'https://theme.zdassets.com/theme_assets/352545/7a5f22e307cf630bd4583af57f93c14858858925.png'} name={'Knight Lab'} url={'http://timeline.knightlab.com/'} />
           </Box>
         </Box>
@@ -345,3 +412,25 @@ function App() {
 }
 
 export default App
+
+function string_to_slug(str) {
+  str = str.replace(/^\s+|\s+$/g, ""); // trim
+  str = str.toLowerCase();
+
+  // remove accents, swap ñ for n, etc
+  var from = "åàáãäâèéëêìíïîòóöôùúüûñç·/_,:;";
+  var to = "aaaaaaeeeeiiiioooouuuunc------";
+
+  for (var i = 0, l = from.length; i < l; i++) {
+    str = str.replace(new RegExp(from.charAt(i), "g"), to.charAt(i));
+  }
+
+  str = str
+    .replace(/[^a-z0-9 -]/g, "") // remove invalid chars
+    .replace(/\s+/g, "-") // collapse whitespace and replace by -
+    .replace(/-+/g, "-") // collapse dashes
+    .replace(/^-+/, "") // trim - from start of text
+    .replace(/-+$/, ""); // trim - from end of text
+
+  return str;
+}

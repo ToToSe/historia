@@ -3,7 +3,9 @@ const express = require('express')
 const request = require('request');
 const app = express()
 const cheerio = require('cherio')
+const Period = require('./period')
 
+require('./mongodb')
 
 let $
 
@@ -48,12 +50,139 @@ request('http://geacron.com/map/atlas/mapal.html?lang=fr', (error, response, bod
   </script>`);
 })
 
+// Add headers before the routes are defined
 app.use(function (req, res, next) {
-  res.header("X-Frame-Options", "*")
-  res.header("Access-Control-Allow-Origin", "localhost:3000")
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
-  next()
+
+  // Website you wish to allow to connect
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+
+  // Request methods you wish to allow
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+  // Request headers you wish to allow
+  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+  // Set to true if you need the website to include cookies in the requests sent
+  // to the API (e.g. in case you use sessions)
+  res.setHeader('Access-Control-Allow-Credentials', true);
+
+  // Pass to next layer of middleware
+  next();
 });
+
+
+
+
+
+
+
+app.get('/seedperiods', async (req, res) => {
+  await Period.create([
+    {
+      name: 'Summer',
+      events: [
+        {
+          year: -3000,
+          title: `Histoire de l'écriture`,
+          url: `Histoire_de_l%27écriture`
+        }
+      ]
+    },
+    {
+      name: 'Rome',
+      events: [
+        {
+          year: -753,
+          title: `Royauté romaine`,
+          url: `Royauté_romaine`
+        },
+        {
+          year: -509,
+          title: `République romaine`,
+          url: `République_romaine`
+        },
+        {
+          year: -264,
+          title: `Première guerre punique`,
+          url: `Première_guerre_punique`
+        },
+        {
+          year: -218,
+          title: `Deuxième guerre punique`,
+          url: `Deuxième_guerre_punique`
+        },
+        {
+          year: -149,
+          title: `Troisième guerre punique`,
+          url: `Troisième_guerre_punique`
+        },
+        {
+          year: -58,
+          title: `Guerre des Gaules`,
+          url: `Guerre_des_Gaules`,
+        },
+        {
+          year: -27,
+          title: `Empire romain`,
+          url: `Empire_romain`,
+        },
+        {
+          year: 476,
+          title: `Empire romain d'Occident`,
+          url: `Empire_romain_d%27Occident`
+        },
+        {
+          year: 1453,
+          title: `Chute de Constantinople`,
+          url: `Chute_de_Constantinople`
+        },
+      ]
+    },
+    {
+      name: 'Grèce',
+      events: [
+        {
+          year: -480,
+          title: `Bataille de Salamine`,
+          url: `Bataille_de_Salamine`
+        },
+      ]
+    },
+    {
+      name: 'France',
+      events: [
+        {
+          year: 481,
+          title: `Royaumes francs`,
+          url: `Royaumes_francs`
+        },
+        {
+          year: 1789,
+          title: `Révolution française`,
+          url: `Révolution_française`
+        },
+      ]
+    }
+  ])
+  res.json(true)
+})
+
+app.get('/periods', async (req, res) => {
+  res.json(await Period.find({}))
+})
+
+app.post('/periods', async (req, res) => {
+  res.json(await Period.create(req.body))
+})
+
+app.put('/periods/:_id', async (req, res) => {
+  await Period.update(req.body)
+  res.json(true)
+})
+
+
+
+
 
 app.get('/geacron', (req, res) => {
   let year = req.query.year
@@ -61,6 +190,7 @@ app.get('/geacron', (req, res) => {
 
   res.send(html)
 })
+
 
 app.get('/wiki', (req, res) => {
   let url = `https://fr.wikipedia.org/wiki/${encodeURIComponent(req.query.url)}`
@@ -131,5 +261,4 @@ app.use(express.static(path.join(__dirname,'./build')));
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, './build', 'index.html'));
 });
-
-app.listen(process.env.PORT)
+app.listen(process.env.PORT || 8080)
