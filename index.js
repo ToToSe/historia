@@ -89,15 +89,11 @@ app.get('/seedperiods', async (req, res) => {
       ]
     },
     {
-      name: 'Anglettere',
-      events: []
-    },
-    {
-      name: 'Allemagne',
-      events: []
-    },
-    {
       name: 'Egypte',
+      events: []
+    },
+    {
+      name: 'Babylone',
       events: []
     },
     {
@@ -105,8 +101,14 @@ app.get('/seedperiods', async (req, res) => {
       events: []
     },
     {
-      name: 'Babylone',
-      events: []
+      name: 'Grèce',
+      events: [
+        {
+          year: -480,
+          title: `Bataille de Salamine`,
+          url: `Bataille_de_Salamine`
+        },
+      ]
     },
     {
       name: 'Rome',
@@ -159,16 +161,6 @@ app.get('/seedperiods', async (req, res) => {
       ]
     },
     {
-      name: 'Grèce',
-      events: [
-        {
-          year: -480,
-          title: `Bataille de Salamine`,
-          url: `Bataille_de_Salamine`
-        },
-      ]
-    },
-    {
       name: 'France',
       events: [
         {
@@ -182,10 +174,19 @@ app.get('/seedperiods', async (req, res) => {
           url: `Révolution_française`
         },
       ]
-    }
+    },
+    {
+      name: 'Allemagne',
+      events: []
+    },
+    {
+      name: 'Anglettere',
+      events: []
+    },
   ])
   res.json(true)
 })
+
 
 app.get('/periods', async (req, res) => {
   res.json(await Period.find({}))
@@ -193,6 +194,13 @@ app.get('/periods', async (req, res) => {
 
 app.post('/periods', async (req, res) => {
   res.json(await Period.create(req.body))
+})
+
+app.post('/period/:group', async (req, res) => {
+  let period = await Period.findOne({ name: req.params.group })
+  period.events = [...period.events, req.body]
+  await period.save()
+  res.json(true)
 })
 
 app.put('/periods/:_id', async (req, res) => {
