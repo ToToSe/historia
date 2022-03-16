@@ -254,8 +254,8 @@ function App() {
                     fontSize: mapOpen ? 14 : 16
                   }} variant="outlined" disabled={isNaN(year)} onClick={() => setMapOpen(!mapOpen)} startIcon={<i style={{
                     marginRight: 16
-                  }} className={mapOpen ? 'fa-brands fa-wikipedia-w' : `fa-solid fa-location-pin`}></i>}>
-                    {mapOpen ? 'Wikipédia' : 'Carte'}
+                  }} className={mapOpen ? 'fa-solid fa-wbook' : `fa-solid fa-location-pin`}></i>}>
+                    {mapOpen ? 'Histoire' : 'Carte'}
                   </Button>
                   <OutlinedInput
                     style={{
