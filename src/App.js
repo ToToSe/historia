@@ -140,17 +140,14 @@ function App() {
       setDatas(_datas)
 
       let event = _datas.events.find(event => `#event-${string_to_slug(event.url)}` === window.location.hash)
-      
-      if (!!event) {
-        setPage(event)
-        setYear(event.year)
-        setMapYear(event.year)
-      } else {
+
+      if (!event) {
         event = _datas.events.find(event => string_to_slug(event.url) === 'republique-romaine')
-        setPage(_datas.events[0])
-        setYear(_datas.events[0].year)
-        setMapYear(_datas.events[0].year)
       }
+
+      setPage(event)
+      setYear(event.year)
+      setMapYear(event.year)
 
       if (!timeline && timelineRef.current) {
         setTimeline(new window.TL.Timeline('timeline', _datas, timelineOptions))
