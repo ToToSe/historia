@@ -203,6 +203,7 @@ app.post('/periods', async (req, res) => {
 app.post('/period/:group', async (req, res) => {
   let period = await Period.findOne({ name: req.params.group })
   if (!!period) {
+    console.log(req.body)
     period.events = [...period.events, req.body]
     await period.save()
     res.json(true)
