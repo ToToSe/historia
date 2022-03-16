@@ -70,7 +70,6 @@ app.get('/wiki', (req, res) => {
 
     html('body').append(`<script>
     setTimeout(() => {
-      document.domain = 'localhost'
       document.querySelectorAll('a').forEach((e) => {
         if (!e.hash) {
           if(e.getElementsByTagName('img').length > 0) {
@@ -78,7 +77,7 @@ app.get('/wiki', (req, res) => {
             let url = "https://upload.wikimedia.org/wikipedia/commons/"
             e.href = url + img.src.split('/')[6] + '/' + img.src.split('/')[7] +'/' + img.src.split('/')[8]
           } else {
-            e.href = e.href.replace('http://localhost:8080', 'https://fr.wikipedia.org')
+            e.href = e.href.replace('http://localhost:8080', 'https://fr.wikipedia.org').replace('https://historia-io.herokuapp.com', 'https://fr.wikipedia.org')
           }
           e.target = '_blank'
         }

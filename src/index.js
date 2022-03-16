@@ -23,8 +23,6 @@ document.head.appendChild(script); //or something of the likes
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
 
-document.domain = 'localhost'
-
 // window.addEventListener("message", (event) => {
 //   var data = event.data;
 //   console.log('message', data)
