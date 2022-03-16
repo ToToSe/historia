@@ -5,6 +5,7 @@ const app = express()
 const cors = require('cors')
 const cheerio = require('cherio')
 const Period = require('./period')
+const  bodyParser = require('body-parser')
 
 require('./mongodb')
 
@@ -50,6 +51,8 @@ request('http://geacron.com/map/atlas/mapal.html?lang=fr', (error, response, bod
     }, 1000)
   </script>`);
 })
+
+app.use(bodyParser.json())
 
 app.use(cors({
   exposedHeaders: ["Link"],
