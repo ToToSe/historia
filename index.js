@@ -20,7 +20,7 @@ request('http://geacron.com/map/atlas/mapal.html?lang=fr', (error, response, bod
 
   $('body').prepend(`<script>
     setTimeout(() => {
-      putfecha(YEAR_REPLACE)
+      putfecha(YEAR_REPLACE + 1)
       
       let input = document.querySelectorAll('[name="Fecha"]')[0]
       let date = document.querySelectorAll('[name="sliderValue2"]')[0]
@@ -44,7 +44,7 @@ request('http://geacron.com/map/atlas/mapal.html?lang=fr', (error, response, bod
       window.addEventListener("message", (event) => {
         var data = event.data;
         if (!!data.year) {
-          putfecha(data.year)
+          putfecha(parseInt(data.year) + 10)
         }
       }, false)
 
