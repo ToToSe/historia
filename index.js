@@ -54,7 +54,7 @@ request('http://geacron.com/map/atlas/mapal.html?lang=fr', (error, response, bod
 app.use(function (req, res, next) {
 
   // Website you wish to allow to connect
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000, http://historia-io.herokuapp.com/');
+  res.setHeader('Access-Control-Allow-Origin', process.env.MONGOURI ? 'http://historia-io.herokuapp.com' : 'http://localhost:3000');
 
   // Request methods you wish to allow
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -87,6 +87,26 @@ app.get('/seedperiods', async (req, res) => {
           url: `Histoire_de_l%27écriture`
         }
       ]
+    },
+    {
+      name: 'Anglettere',
+      events: []
+    },
+    {
+      name: 'Allemagne',
+      events: []
+    },
+    {
+      name: 'Egypte',
+      events: []
+    },
+    {
+      name: 'Assyrie',
+      events: []
+    },
+    {
+      name: 'Babylone',
+      events: []
     },
     {
       name: 'Rome',

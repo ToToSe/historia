@@ -124,7 +124,7 @@ function App() {
   }
 
   useEffect(() => {
-    axios.get((window.document.domain.includes('historia-io') ? 'http://historia-io.herokuapp.com/' : 'http://localhost:8080') + '/periods').then(res => {
+    axios.get((window.document.domain.includes('historia-io') ? 'http://historia-io.herokuapp.com' : 'http://localhost:8080') + '/periods').then(res => {
       let _datas = {
         eras,
         events: res.data.reduce((a, b) => [...a, ...b.events.map(event => ({ ...event, group: b.name }))], []).map((e, i) => ({
