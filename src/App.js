@@ -142,7 +142,7 @@ function App() {
       let event = _datas.events.find(event => `#event-${string_to_slug(event.url)}` === window.location.hash)
 
       if (!event) {
-        event = _datas.events.find(event => string_to_slug(event.url) === 'republique-romaine')
+        event = _datas.events.find(event => string_to_slug(event.url) === 'empire-romain')
       }
 
       setPage(event)
