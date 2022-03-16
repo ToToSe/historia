@@ -44,7 +44,7 @@ request('http://geacron.com/map/atlas/mapal.html?lang=fr', (error, response, bod
         }
       }, false)
 
-    }, 600)
+    }, 1000)
   </script>`);
 })
 
@@ -77,7 +77,7 @@ app.get('/wiki', (req, res) => {
             let url = "https://upload.wikimedia.org/wikipedia/commons/"
             e.href = url + img.src.split('/')[6] + '/' + img.src.split('/')[7] +'/' + img.src.split('/')[8]
           } else {
-            e.href = e.href.replace('http://localhost:8080', 'https://fr.wikipedia.org').replace('https://historia-io.herokuapp.com', 'https://fr.wikipedia.org')
+            e.href = e.href.replace('http://localhost:8080', 'https://fr.wikipedia.org').replace('http://historia-io.herokuapp.com', 'https://fr.wikipedia.org')
           }
           e.target = '_blank'
         }
