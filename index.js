@@ -54,7 +54,7 @@ request('http://geacron.com/map/atlas/mapal.html?lang=fr', (error, response, bod
 app.use(function (req, res, next) {
 
   // Website you wish to allow to connect
-  res.setHeader('Access-Control-Allow-Origin', process.env.MONGOURI ? 'http://historia-io.herokuapp.com' : 'http://localhost:3000');
+  res.setHeader('Access-Control-Allow-Origin', '*');
 
   // Request methods you wish to allow
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -198,9 +198,13 @@ app.post('/periods', async (req, res) => {
 
 app.post('/period/:group', async (req, res) => {
   let period = await Period.findOne({ name: req.params.group })
-  period.events = [...period.events, req.body]
-  await period.save()
-  res.json(true)
+  if (!!period) {
+    period.events = [...period.events, req.body]
+    await period.save()
+    res.json(true)
+  } else {
+    res.json(false)
+  }
 })
 
 app.put('/periods/:_id', async (req, res) => {
