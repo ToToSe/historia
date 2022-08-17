@@ -105,17 +105,19 @@ function App() {
   const [year, setYear] = useState(0)
   const [mapYear, setMapYear] = useState(null)
 
-  const [mapOpen, setMapOpen] = useState(localStorage.getItem('isMap') || false)
   const [periods, setPeriods] = useState([])
   const [timeline, setTimeline] = useState(false)
 
-  useEffect(() => {
-    if (mapOpen) {
-      localStorage.setItem('isMap', 1)
-    } else {
-      localStorage.removeItem('isMap')
-    }
-  }, [mapOpen])
+  const [mapOpen, setMapOpen] = useState(false)
+  // const [mapOpen, setMapOpen] = useState(localStorage.getItem('isMap') || false)
+
+  // useEffect(() => {
+  //   if (mapOpen) {
+  //     localStorage.setItem('isMap', 1)
+  //   } else {
+  //     localStorage.removeItem('isMap')
+  //   }
+  // }, [mapOpen])
 
   const timelineOptions = {
     debug: true,
@@ -140,18 +142,15 @@ function App() {
       setDatas(_datas)
 
       let event = _datas.events.find(event => `#event-${string_to_slug(event.url)}` === window.location.hash)
-
+      
       if (!event) {
         event = _datas.events.find(event => string_to_slug(event.url) === 'empire-romain')
+        window.history.replaceState(null, null, '#event-empire-romain')
       }
 
       setPage(event)
       setYear(event.year)
       setMapYear(event.year)
-
-      if (!timeline && timelineRef.current) {
-        setTimeline(new window.TL.Timeline('timeline', _datas, timelineOptions))
-      }
 
       window.history.replaceState = new Proxy(window.history.replaceState, {
         apply: (target, thisArg, argArray) => {
@@ -164,18 +163,19 @@ function App() {
           return target.apply(thisArg, argArray)
         },
       })
+
+
+      if (!timeline && timelineRef.current) {
+        setTimeline(new window.TL.Timeline('timeline', _datas, timelineOptions))
+      }
+
     });
   }, [])
 
-  const iframeYearD = _.debounce(function (newYear) {
-    if (!isNaN(newYear) && newYear !== 0) {
-      iframeYear(newYear)
-    }
-  }, 1000);
-
-  const iframeYear = (year) => {
-    if (geacronRef.current) {
-      geacronRef.current.contentWindow.postMessage({ year }, '*')
+  const iframeYear = (newYear = null) => {
+    const yearToSet = newYear === null ? year : newYear
+    if (!isNaN(yearToSet) && yearToSet !== 0 && geacronRef.current) {
+      geacronRef.current.contentWindow.postMessage({ year: yearToSet }, '*')
     }
   }
 
@@ -276,10 +276,14 @@ function App() {
                       fontFamily: "'Montserrat'"
                     }}
                     value={year}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        iframeYear()
+                      }
+                    }}
                     onChange={(e) => {
                       let newYear = isNaN(e.target.value) || ['-', '0'].includes(e.target.value) ? year : e.target.value
                       setYear(newYear)
-                      iframeYearD(newYear)
                     }}
                     endAdornment={<InputAdornment style={{ position: 'relative', top: 1, color: 'white' }} position="end">{year > 0 ? 'ACE' : 'BCE'}</InputAdornment>}
                   />
@@ -301,7 +305,7 @@ function App() {
               }}
             >
 
-              {<Box
+              {mapYear !== null && mapOpen && <Box
                 style={{
                   position: 'absolute',
                   top: 0,

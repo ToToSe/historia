@@ -5,23 +5,23 @@ const app = express()
 const cors = require('cors')
 const cheerio = require('cherio')
 const Period = require('./period')
-const  bodyParser = require('body-parser')
+const bodyParser = require('body-parser')
 
-require('./mongodb')
+// require('./mongodb')
 
 let $
 
 request('http://geacron.com/map/atlas/mapal.html?lang=fr', (error, response, body) => {
-  $ = cheerio.load(body.replace('mapal_REPOSI.js', 'http://geacron.com/map/atlas/mapal_REPOSI.js?n=817'))
+  $ = cheerio.load(body.replace('mapal_REPOSI.js', 'http://geacron.com/map/atlas/mapal_REPOSI.js?n=817').replace('// var anoact = 2018;', 'anoact = YEAR_REPLACE'))
 
   $('body form:not([name="mapa"])').remove()
   $('body').css('opacity', 0)
   $('body').css('overflow', 'hidden')
 
+  
+
   $('body').prepend(`<script>
-    setTimeout(() => {
-      putfecha(YEAR_REPLACE + 1)
-      
+    setTimeout(() => {      
       let input = document.querySelectorAll('[name="Fecha"]')[0]
       let date = document.querySelectorAll('[name="sliderValue2"]')[0]
       let mapEl = document.querySelectorAll('#map')[0]
@@ -32,9 +32,10 @@ request('http://geacron.com/map/atlas/mapal.html?lang=fr', (error, response, bod
       mapEl.style.height = '100%'
       mapEl.style.top = '0'
 
-      map.updateSize()
       map.zoomTo(4)
       map.setCenter([2896115.2958004, 5302161.5318014])
+      
+      map.updateSize()
 
       document.getElementsByTagName('body')[0].style.opacity = '1';
       document.getElementsByTagName('body')[0].style.overflow = 'hidden';
@@ -77,123 +78,168 @@ app.use(function (req, res, next) {
 
 
 
+// {
+//   year: -2500,
+//   title: ``,
+//   url: ``
+// }
 
-
+const PERIODS = [
+  {
+    name: 'Summer',
+    events: [
+      {
+        year: -3000,
+        title: `Cunéiforme`,
+        url: `Cunéiforme`
+      }
+    ]
+  },
+  {
+    name: 'Egypte',
+    events: [
+      {
+        year: -3000,
+        title: `Écriture hiéroglyphique égyptienne`,
+        url: `Écriture_hiéroglyphique_égyptienne`
+      }
+    ]
+  },
+  {
+    name: 'Babylone',
+    events: [
+      {
+        year: -2000,
+        title: `Babylone`,
+        url: `Babylone_(civilisation)`,
+      }
+    ]
+  },
+  {
+    name: 'Assyrie',
+    events: [
+      {
+        year: -2500,
+        title: `Assyrie`,
+        url: `Assyrie`,
+      }
+    ]
+  },
+  {
+    name: 'Grèce',
+    events: [
+      {
+        year: -480,
+        title: `Bataille de Salamine`,
+        url: `Bataille_de_Salamine`
+      },
+    ]
+  },
+  {
+    name: 'Carthage',
+    events: [
+      {
+        year: -814,
+        title: `Carthage`,
+        url: `Civilisation_carthaginoise`
+      },
+    ]
+  },
+  {
+    name: 'Rome',
+    events: [
+      {
+        year: -753,
+        title: `Royauté romaine`,
+        url: `Royauté_romaine`
+      },
+      {
+        year: -509,
+        title: `République romaine`,
+        url: `République_romaine`
+      },
+      {
+        year: -264,
+        title: `Première guerre punique`,
+        url: `Première_guerre_punique`
+      },
+      {
+        year: -218,
+        title: `Deuxième guerre punique`,
+        url: `Deuxième_guerre_punique`
+      },
+      {
+        year: -149,
+        title: `Troisième guerre punique`,
+        url: `Troisième_guerre_punique`
+      },
+      {
+        year: -58,
+        title: `Guerre des Gaules`,
+        url: `Guerre_des_Gaules`,
+      },
+      {
+        year: -27,
+        title: `Empire romain`,
+        url: `Empire_romain`,
+      },
+      {
+        year: 476,
+        title: `Empire romain d'Occident`,
+        url: `Empire_romain_d%27Occident`
+      },
+      {
+        year: 1453,
+        title: `Chute de Constantinople`,
+        url: `Chute_de_Constantinople`
+      },
+    ]
+  },
+  {
+    name: 'France',
+    events: [
+      {
+        year: 481,
+        title: `Royaumes francs`,
+        url: `Royaumes_francs`
+      },
+      {
+        year: 1789,
+        title: `Révolution française`,
+        url: `Révolution_française`
+      },
+    ]
+  },
+  {
+    name: 'Allemagne',
+    events: [
+      {
+        year: 924,
+        title: `Saint-Empire romain germanique`,
+        url: `Saint-Empire_romain_germanique`
+      }
+    ]
+  },
+  {
+    name: 'Anglettere',
+    events: [
+      {
+        year: 927,
+        title: `Royaume d'Angleterre`,
+        url: `Royaume_d%27Angleterre`
+      }
+    ]
+  },
+]
 
 app.get('/seedperiods', async (req, res) => {
-  await Period.create([
-    {
-      name: 'Summer',
-      events: [
-        {
-          year: -3000,
-          title: `Histoire de l'écriture`,
-          url: `Histoire_de_l%27écriture`
-        }
-      ]
-    },
-    {
-      name: 'Egypte',
-      events: []
-    },
-    {
-      name: 'Babylone',
-      events: []
-    },
-    {
-      name: 'Assyrie',
-      events: []
-    },
-    {
-      name: 'Grèce',
-      events: [
-        {
-          year: -480,
-          title: `Bataille de Salamine`,
-          url: `Bataille_de_Salamine`
-        },
-      ]
-    },
-    {
-      name: 'Rome',
-      events: [
-        {
-          year: -753,
-          title: `Royauté romaine`,
-          url: `Royauté_romaine`
-        },
-        {
-          year: -509,
-          title: `République romaine`,
-          url: `République_romaine`
-        },
-        {
-          year: -264,
-          title: `Première guerre punique`,
-          url: `Première_guerre_punique`
-        },
-        {
-          year: -218,
-          title: `Deuxième guerre punique`,
-          url: `Deuxième_guerre_punique`
-        },
-        {
-          year: -149,
-          title: `Troisième guerre punique`,
-          url: `Troisième_guerre_punique`
-        },
-        {
-          year: -58,
-          title: `Guerre des Gaules`,
-          url: `Guerre_des_Gaules`,
-        },
-        {
-          year: -27,
-          title: `Empire romain`,
-          url: `Empire_romain`,
-        },
-        {
-          year: 476,
-          title: `Empire romain d'Occident`,
-          url: `Empire_romain_d%27Occident`
-        },
-        {
-          year: 1453,
-          title: `Chute de Constantinople`,
-          url: `Chute_de_Constantinople`
-        },
-      ]
-    },
-    {
-      name: 'France',
-      events: [
-        {
-          year: 481,
-          title: `Royaumes francs`,
-          url: `Royaumes_francs`
-        },
-        {
-          year: 1789,
-          title: `Révolution française`,
-          url: `Révolution_française`
-        },
-      ]
-    },
-    {
-      name: 'Allemagne',
-      events: []
-    },
-    {
-      name: 'Anglettere',
-      events: []
-    },
-  ])
+  await Period.create(PERIODS)
   res.json(true)
 })
 
 
 app.get('/periods', async (req, res) => {
-  res.json(await Period.find({}))
+  res.json(PERIODS)
 })
 
 app.post('/periods', async (req, res) => {
@@ -203,7 +249,6 @@ app.post('/periods', async (req, res) => {
 app.post('/period/:group', async (req, res) => {
   let period = await Period.findOne({ name: req.params.group })
   if (!!period) {
-    console.log(req.body)
     period.events = [...period.events, req.body]
     await period.save()
     res.json(true)
@@ -252,11 +297,13 @@ app.get('/wiki', (req, res) => {
     }, 300)
   </script>`);
 
+    html('.mw-article-toolbar-container').remove()
     html('.mw-footer-container').remove()
     html('.mw-body-header').remove()
     html('.mw-header').remove()
     html('#catlinks').remove()
     html('#mw-navigation').remove()
+    html('body').css('margin-top', '-124px')
     html('body').css('background', 'white')
     html('body').css('overflow-x', 'hidden')
     html('#firstHeading').css('border', 'none')
@@ -293,7 +340,7 @@ app.get('/wiki', (req, res) => {
   })
 })
 
-app.use(express.static(path.join(__dirname,'./build')));
+app.use(express.static(path.join(__dirname, './build')));
 
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, './build', 'index.html'));
