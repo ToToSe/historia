@@ -4,7 +4,6 @@ const request = require('request');
 const app = express()
 const cors = require('cors')
 const cheerio = require('cherio')
-const Period = require('./period')
 const bodyParser = require('body-parser')
 
 
@@ -233,7 +232,7 @@ const PERIODS = [
 ]
 
 app.get('/seedperiods', async (req, res) => {
-  await Period.create(PERIODS)
+  // await Period.create(PERIODS)
   res.json(true)
 })
 
@@ -243,22 +242,23 @@ app.get('/periods', async (req, res) => {
 })
 
 app.post('/periods', async (req, res) => {
-  res.json(await Period.create(req.body))
+  // res.json(await Period.create(req.body))
+  res.json(true)
 })
 
 app.post('/period/:group', async (req, res) => {
-  let period = await Period.findOne({ name: req.params.group })
-  if (!!period) {
-    period.events = [...period.events, req.body]
-    await period.save()
-    res.json(true)
-  } else {
-    res.json(false)
-  }
+  // let period = await Period.findOne({ name: req.params.group })
+  // if (!!period) {
+  //   period.events = [...period.events, req.body]
+  //   await period.save()
+  //   res.json(true)
+  // } else {
+  //   res.json(false)
+  // }
 })
 
 app.put('/periods/:_id', async (req, res) => {
-  await Period.update(req.body)
+  // await Period.update(req.body)
   res.json(true)
 })
 
@@ -339,11 +339,5 @@ app.get('/wiki', (req, res) => {
     res.send(html)
   })
 })
-
-app.use(express.static(path.join(__dirname, './build')));
-
-app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname, './build', 'index.html'));
-});
 
 app.listen(process.env.PORT || 8080)
