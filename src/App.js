@@ -307,7 +307,7 @@ function App() {
               }}
             >
 
-              {mapYear !== null && mapOpen && <Box
+              {mapYear !== null && <Box
                 style={{
                   position: 'absolute',
                   top: 0,
