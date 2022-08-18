@@ -93,6 +93,8 @@ function Caption({ icon, name, url }) {
   )
 }
 
+const API_URL = (window.document.domain.includes('aws') ? 'http://ec2-18-168-148-133.eu-west-2.compute.amazonaws.com' : 'http://localhost:8080')
+
 function App() {
   const contentRef = useRef(null)
   const timelineRef = useRef(null)
@@ -126,7 +128,7 @@ function App() {
   }
 
   useEffect(() => {
-    axios.get((window.document.domain.includes('aws') ? 'http://ec2-18-168-148-133.eu-west-2.compute.amazonaws.com' : 'http://localhost:8080') + '/periods').then(res => {
+    axios.get(API_URL + '/periods').then(res => {
       let _datas = {
         eras,
         events: res.data.reduce((a, b) => [...a, ...b.events.map(event => ({ ...event, group: b.name }))], []).map((e, i) => ({
@@ -317,7 +319,7 @@ function App() {
                   display: mapOpen ? 'block' : 'none',
                 }}
               >
-                <iframe ref={geacronRef} style={{ overflow: 'hidden', border: 'none', width: '100%', height: '100%' }} src={`${(window.document.domain.includes('historia-io') ? 'http://historia-io.herokuapp.com' : 'http://localhost:8080')}/geacron?year=${mapYear}`} />
+                <iframe ref={geacronRef} style={{ overflow: 'hidden', border: 'none', width: '100%', height: '100%' }} src={`${API_URL}/geacron?year=${mapYear}`} />
                 {mapOpen && <Caption icon={'http://geacron.com/wp-content/themes/atahualpa/images/favicon/geacron.ico'} name={'Geacron'} url={'http://geacron.com/'} />}
               </Box>}
 
@@ -328,7 +330,7 @@ function App() {
                   width: '100%'
                 }}
               >
-                <iframe id="wikipedia" style={{ overflow: 'hidden', border: 'none', width: '100%', height: '100%' }} src={`${(window.document.domain.includes('historia-io') ? 'http://historia-io.herokuapp.com' : 'http://localhost:8080')}/wiki?url=${page.url}`} />
+                <iframe id="wikipedia" style={{ overflow: 'hidden', border: 'none', width: '100%', height: '100%' }} src={`${API_URL}/wiki?url=${page.url}`} />
                 {!mapOpen && <Caption icon={'https://upload.wikimedia.org/wikipedia/commons/a/a7/Wikipedia_logo_v3.svg'} name={'Wikipedia'} url={'https://fr.wikipedia.org/'} />}
               </Box>}
             </Box>
