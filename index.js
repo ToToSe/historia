@@ -1,56 +1,12 @@
 const path = require('path')
 const express = require('express')
-const request = require('request');
+const request = require('request')
 const app = express()
 const cors = require('cors')
 const cheerio = require('cherio')
 const bodyParser = require('body-parser')
 
-
-// require('./mongodb')
 let $
-
-request('http://geacron.com/map/atlas/mapal.html?lang=fr', (error, response, body) => {
-  $ = cheerio.load(body.replace('mapal_REPOSI.js', 'http://geacron.com/map/atlas/mapal_REPOSI.js?n=817').replace('// var anoact = 2018;', 'anoact = YEAR_REPLACE'))
-
-  $('body form:not([name="mapa"])').remove()
-  $('body').css('opacity', 0)
-  $('body').css('overflow', 'hidden')
-
-  
-
-  $('body').prepend(`<script>
-    setTimeout(() => {      
-      let input = document.querySelectorAll('[name="Fecha"]')[0]
-      let date = document.querySelectorAll('[name="sliderValue2"]')[0]
-      let mapEl = document.querySelectorAll('#map')[0]
-
-      input.style.display = 'none'
-      date.style.display = 'none'
-      
-      mapEl.style.height = '100%'
-      mapEl.style.top = '0'
-
-      map.zoomTo(4)
-      map.setCenter([2896115.2958004, 5302161.5318014])
-      
-      map.updateSize()
-
-      document.getElementsByTagName('body')[0].style.opacity = '1';
-      document.getElementsByTagName('body')[0].style.overflow = 'hidden';
-
-
-
-      window.addEventListener("message", (event) => {
-        var data = event.data;
-        if (!!data.year) {
-          putfecha(parseInt(data.year) + 10)
-        }
-      }, false)
-
-    }, 1000)
-  </script>`);
-})
 
 app.use(bodyParser.json())
 
@@ -66,22 +22,13 @@ app.use(cors({
   credentials: true
 }))
 
-// Add headers before the routes are defined
 app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Credentials', true);
+  res.header('Access-Control-Allow-Origin', '*');
 
-  // Pass to next layer of middleware
   next();
 });
 
-
-
-
-// {
-//   year: -2500,
-//   title: ``,
-//   url: ``
-// }
 
 const PERIODS = [
   {
@@ -229,50 +176,24 @@ const PERIODS = [
       }
     ]
   },
+  {
+    name: 'Tampon',
+    events: [
+      { year: 2042, title: ``, url: `` },
+      { year: 2042, title: ``, url: `` },
+      { year: 2042, title: ``, url: `` },
+      { year: 2042, title: ``, url: `` },
+      { year: 2042, title: ``, url: `` },
+      { year: 2042, title: ``, url: `` },
+      { year: 2042, title: ``, url: `` },
+      { year: 2042, title: ``, url: `` },
+    ]
+  },
 ]
-
-app.get('/seedperiods', async (req, res) => {
-  // await Period.create(PERIODS)
-  res.json(true)
-})
-
 
 app.get('/periods', async (req, res) => {
   res.json(PERIODS)
 })
-
-app.post('/periods', async (req, res) => {
-  // res.json(await Period.create(req.body))
-  res.json(true)
-})
-
-app.post('/period/:group', async (req, res) => {
-  // let period = await Period.findOne({ name: req.params.group })
-  // if (!!period) {
-  //   period.events = [...period.events, req.body]
-  //   await period.save()
-  //   res.json(true)
-  // } else {
-  //   res.json(false)
-  // }
-})
-
-app.put('/periods/:_id', async (req, res) => {
-  // await Period.update(req.body)
-  res.json(true)
-})
-
-
-
-
-
-app.get('/geacron', (req, res) => {
-  let year = req.query.year
-  let html = $('html').html().replace('YEAR_REPLACE', year)
-
-  res.send(html)
-})
-
 
 app.get('/wiki', (req, res) => {
   let url = `https://fr.wikipedia.org/wiki/${encodeURIComponent(req.query.url)}`
@@ -295,15 +216,27 @@ app.get('/wiki', (req, res) => {
         }
       })
     }, 300)
-  </script>`);
+  </script>
+  <style>
+    @media screen and (max-width: 1086px) {
+      #mw-panel-toc {
+        display: none;
+      }
+    }
+  </style>`);
 
     html('.mw-article-toolbar-container').remove()
     html('.mw-footer-container').remove()
     html('.mw-body-header').remove()
+    html('.vector-body-before-content').remove()
+    html('.bandeau-container').remove()
+    html('.vector-page-toolbar').remove()
     html('.mw-header').remove()
     html('#catlinks').remove()
     html('#mw-navigation').remove()
-    html('body').css('margin-top', '-124px')
+    html('.entete').css('color', 'white')
+    html('.entete').css('background-color', '#' + req.query.color)
+    html('body').css('margin-top', '-32px')
     html('body').css('background', 'white')
     html('body').css('overflow-x', 'hidden')
     html('#firstHeading').css('border', 'none')
@@ -340,10 +273,12 @@ app.get('/wiki', (req, res) => {
   })
 })
 
-app.use(express.static(path.join(__dirname, './build')));
+app.use(express.static(path.join(__dirname, './build')))
 
-app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname, './build', 'index.html'));
-});
+app.use('/geacron', express.static(path.join(__dirname, './geacron')))
 
-app.listen(80)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, './build', 'index.html'))
+})
+
+app.listen(8080)

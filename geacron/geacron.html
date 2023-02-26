@@ -1,0 +1,768 @@
+
+<head>
+    <title>GeaCron</title>
+
+
+    <link rel="stylesheet" href="/geacron/style.css" type="text/css">
+    <!--  <link rel="stylesheet" href="http://geacron.com/dropbox/geacron/map/theme/default/scalebar-thin.css" type="text/css" /> -->
+
+<style>
+#map {
+  font-family: Arial;
+  font-size: 12px;
+  width: 100%;
+  height: 600px;
+  border: 0px solid black;
+  }
+
+div.olControlMousePosition {
+  font-family: Arial;
+  font-size: 12px;
+  color: black;
+  } 
+
+.olLayerGooglePoweredBy.olLayerGoogleV3.gmnoprint {
+visibility:hidden;
+}
+</style>
+
+    <style type="text/css">
+        #controlToggle li {
+            list-style: none;
+        }
+
+        /* avoid pink tiles */
+        .olImageLoadError {
+            background-color: transparent ;
+
+        }
+    </style>
+
+    <!-- this gmaps key generated for http://openlayers.org/dev/ -->
+
+    <script type="text/javascript">
+     var ver_geacron = 50;
+
+    </script>
+
+     <!--  <script src="../lib/OpenLayers.js?n=800"></script>  -->
+    <script src="/geacron/OpenLayers.js"></script>
+     <script language="JavaScript" src="/geacron/mapal.js"></script>
+    <script language="JavaScript" src="/geacron/functions.js"></script>
+    <script language="JavaScript" src="/geacron/dates.js"></script>
+    <script language="JavaScript" src="/geacron/idioma.js"></script>
+    <script language="JavaScript" src="/geacron/tilesaccess.js"></script>
+    <!--  <script src="../lib/OpenLayers/Control/ScaleBar.js?n=800"></script>  -->
+    <!--  <script language="JavaScript" type="text/javascript" src="http://geacron.com/dropbox/geacron/map/atlas/ajax_search.js?n=800"></script>  -->
+    <!--  <script language="JavaScript" src="touch.js?n=800"></script>  -->
+    <!-- <script src="null.js"></script> -->
+    <script src="/geacron/aes.js"></script>
+
+   <!-- <script src="http://maps.google.com/maps/api/js?v=3.3&sensor=false"></script>  -->
+
+    <meta http-equiv="cache-control" content="no-cache">
+
+
+
+    <script type="text/javascript">
+
+// =============================
+
+// Comprobar temporalmente si hay que desplazar latitud. De momento en Chtome 15, IE9,
+/*
+var desplazar;
+
+iev = getInternetExplorerVersion();
+chrv = ChromeVersion();
+// if ((chrv && chrv > 14) || (iev != -1 && iev == 9)) {
+if (chrv && chrv > 14) {
+desplazar=true} else {desplazar=false
+}
+*/
+
+OpenLayers.IMAGE_RELOAD_ATTEMPTS = 0;
+
+// Variables globales **************************************
+var estaurlgd = "geacron.com/dropbox/geacron";
+// var estaurlgd = "googledrive.com/host/0B8Ex4XMUqaKmYzRSXzNQdEgtZDg";
+var estaurl = "";
+
+var Ventana = "m";
+// variables situacion ciudad
+var posi = ["", "rb", "cb", "lb", "rc", "lc", "rt", "ct", "lt"];
+var poffx = [0, -1, 0, 1, -1, 1, -1, 0, 1];
+var poffy = [0, 1, 1, 1, 0, 0, 0, -0.8,0];
+var ptpc = [0, 2,1,8];
+// var goffx = [0, 0, -0.5, -1, 0, -1, 0, -0.5, -1];
+// var goffy = [0, 0, 0, 0, -0.5, -0.5, -0.8, -0.8,-0.8];
+// ---------------------
+var primera = false;
+var selectControl,  selectControlHover;
+// Dates
+var fechareal;
+var dateselec = 0;
+var totalselec=0;
+var totdateh;
+var dateh = [];
+var ano;
+var totdatel;
+var datel = [];
+var anol;
+var totdatelk;
+var datelk = [];
+var anolk;
+var totdatec;
+var datec = [];
+var anoc;
+var totdatee;
+var datee = [];
+var anoe;
+var totdatem;
+var datem = [];
+var anom;
+var totdatelg;
+var datelg = [];
+var anolg;
+var totdatelg2;
+var datelg2 = [];
+var anolg2;
+
+function getParameterByName(name) {
+  const url = window.location.href;
+  name = name.replace(/[\[\]]/g, '\\$&');
+  const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+  const results = regex.exec(url);
+  if (!results) {
+    return null;
+  }
+  if (!results[2]) {
+    return '';
+  }
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
+var dt = new Date();
+// var anoact = dt.getFullYear();
+var anoact = getParameterByName('year');
+
+var zoomActual;
+
+// Mapa
+var filtro, filterStrategy, datadicional;
+var ciudad, ciudad2, hecho, hecho2, movimiento, leyenda, leyenda2;
+var fl = new Array(3);
+var map, miolake, miopais, literal, scalebar, rectang, rectang2;
+
+if(navigator.userAgent.match(/iPad/i) != null) {
+var h =500;
+// ------------------------------------
+/*
+   var options = {
+   div: "map",
+   theme: null,
+   maxExtent: new OpenLayers.Bounds(-20037508.3,-20037508.3,20037508.3,20037508.3),
+   numZoomLevels:7,
+   maxResolution:156543.0339,
+   units:'m',
+   projection: "EPSG:900913",
+   displayProjection: new OpenLayers.Projection("EPSG:4326"),
+
+   controls: [ new OpenLayers.Control.Navigation(),
+               new OpenLayers.Control.TouchNavigation({
+                          dragPanOptions: {
+                                enableKinetic: true 
+                          }
+                   })
+             ],
+
+   eventListeners: {
+                    // "zoomend": finzoom,
+                    //"click": abrepop,
+                    "moveend" : finzoom,
+                    "movestart": finlit
+                   //  "touchstart": disableLayers,
+                   //  "touchend": enableLayers
+
+                    // "changelayer": cambialayer
+               }
+  }
+*/
+// *******************************************
+// *******************************************
+
+   var options = {
+       maxExtent: new OpenLayers.Bounds(-20037508.3,-20037508.3,20037508.3,20037508.3),
+       numZoomLevels:6,
+       maxResolution:156543.0339,
+       units:'m',
+       projection: "EPSG:900913",
+       displayProjection: new OpenLayers.Projection("EPSG:4326"),
+
+       controls: [ new OpenLayers.Control.Navigation({dragPanOptions: {enableKinetic: true}}),
+//                      new OpenLayers.Control.PanZoomBar(),
+//                      new OpenLayers.Control.ScaleLine(),
+new OpenLayers.Control.LayerSwitcher() ,
+                   new OpenLayers.Control.MousePosition()
+                 ],
+
+       eventListeners: {
+                    // "zoomend": finzoom,
+                    //"click": abrepop,
+                   // "touchstart": disableLayers,
+                   // "touchend": enableLayers,
+                    "moveend" : finzoom,
+                    "movestart": finlit
+                    // "changelayer": cambialayer
+               }
+  }
+
+// *******************************************
+// *******************************************
+} else {
+   var h = 600;
+   var options = {
+       maxExtent: new OpenLayers.Bounds(-20037508.3,-20037508.3,20037508.3,20037508.3),
+       numZoomLevels:6,
+       maxResolution:156543.0339,
+       units:'m',
+       projection: "EPSG:900913",
+       displayProjection: new OpenLayers.Projection("EPSG:4326"),
+
+       controls: [ new OpenLayers.Control.Navigation({dragPanOptions: {enableKinetic: true}}),
+                   new OpenLayers.Control.PanZoomBar(),
+                  new OpenLayers.Control.ScaleLine(),
+new OpenLayers.Control.LayerSwitcher() ,
+                  new OpenLayers.Control.MousePosition()
+                 ],
+
+       eventListeners: {
+                    // "zoomend": finzoom,
+                    //"click": abrepop,
+                    "moveend" : finzoom,
+                    "movestart": finlit
+                    // "changelayer": cambialayer
+               }
+
+  }
+}
+
+
+// Valores de pantalla
+
+var ifrmh = 770;
+// var h = 600;
+var dsplz = ((ifrmh - h) / 2);
+var w = 100;
+// var zoom = 2;
+// var x = 0;
+// var y = 25;
+// var d = 15;
+var offx = 150;
+
+// Idioma
+var etiq = [];
+var ad, bc;
+
+// Fin variables globales ***************************************
+
+
+// Analizamos query_string *************************************
+
+var di ; // Fecha inicial
+var fechas = [];
+var maxfechas = 10;
+var zoom, x, y, d, nd, lng, tm, estesid, ly, lya, lyc, lye, lym;
+var lyg, ly2, lyd;
+var ct;
+
+var query = window.location.search.substring(1); 
+datosinicio_ses(query, 1);
+
+// leemos query string para timeline
+// top.frames['timeline'].spdatosinicio() 
+/*
+// Leemos Cookie de session ***************************
+
+var ss = readCookie(estesid);
+
+if (ss) {
+
+eraseCookie(estesid);
+// window.location.href ="http://" + estaurl + "/map/atlas/mapal.html?" + ss + "&sid=" + estesid;
+// ------- window.location.replace("http://" + estaurl + "/map/atlas/mapal.html?" + ss + "&sid=" + estesid);
+// top.frames['slider'].window.location.replace("http://" + estaurl + "/map/timeline/slider.html?" + ss + "&sid=" + estesid);
+// top.frames['timeline'].window.location.replace("http://" + estaurl + "/map/timeline/pinta.html?" + ss + "&sid=" + estesid);
+// window.open("http://" + estaurl + "/map/atlas/mapal.html?" + ss + "&sid=" + estesid,"_self");
+datosinicio_ses(ss, 0);
+}
+*/
+// **********************************
+
+// titulo=decodeURIComponent(titulo);
+
+// Fin analisis query_string ****************************************
+
+function carga() {
+
+ini_fecha();
+ano = getdate(di);
+anol = getdatel(di);
+anolk = getdatelk(di);
+anoc = getdatec(di);
+anoe = getdatee(di);
+anom = getdatem(di);
+anolg = getdatelg(di);
+anolg2 = getdatelg2(di);
+
+// Set bottom dates
+for (var n = 0; n < fechas.length; n++) {
+var elem = document.getElementById('T' + n);
+elem.value = fechas[n];
+}
+// REPONER
+// searchContribution();
+
+// ============================================================
+         setlayers(tm);
+// ============================================================
+      //   setcontroles(x, y, zoom);
+// ============================================================
+//        seteventos();
+
+// ************************************************************************
+
+// Definimos Layer Paises
+
+     miopais = new OpenLayers.Layer.TMS("pais",
+             "http://",
+             { 'getURL':get_my_urlpais, isBaseLayer: false, 'displayInLayerSwitcher':false, displayOutsideMaxExtent: true, opacity: 0.6,  wrapDateLine: true  });
+
+// var bv = getInternetExplorerVersion();
+// if (bv > -1 && bv < 7 ) { miopais.alpha = setAlpha('image/png');}
+
+    map.addLayer(miopais)
+
+
+// Layer Lagos
+
+      miolake = new OpenLayers.Layer.TMS("Lakes",
+             "http://",
+             { 'getURL':get_my_urllake, isBaseLayer: false, 'displayInLayerSwitcher':false, displayOutsideMaxExtent: true, opacity: 1,  wrapDateLine: true  });
+      map.addLayer(miolake)
+
+// Layer Literal. El penultimo
+
+      literal = new OpenLayers.Layer.TMS("Literal",
+             "http://",
+             { 'getURL':get_my_urllit, isBaseLayer: false, 'displayInLayerSwitcher':false, displayOutsideMaxExtent: true, opacity: 1 });
+
+// var bv = getInternetExplorerVersion();
+// if (bv > -1 && bv < 7 ) { literal.alpha = setAlpha('image/png');}
+
+     map.addLayer(literal);
+
+// Layer rectangulo
+     if (lya == "y") { seve = true} else { seve = false}
+
+     rectang = new OpenLayers.Layer.Vector(etiq[7], {
+            'displayInLayerSwitcher':true, 'visibility': seve,
+            styleMap: new OpenLayers.StyleMap({'default':{
+                fillOpacity: 0,
+                strokeWidth : 0,
+                label : "${name}",
+                fontFamily: "Arial",
+                fontColor: "#000000",
+                fontSize: 12,
+                fontWeight: "bold",
+                labelAlign: "cm",
+                cursor: "pointer" }})
+     });
+
+     map.addLayer(rectang)
+// **********************************************
+
+       rectang2 = new OpenLayers.Layer.Vector("rectang2", {'displayInLayerSwitcher':false,
+            'displayInLayerSwitcher':false, 'visibility': true,
+            styleMap: new OpenLayers.StyleMap({'default':{
+
+                strokeOpacity: 0,
+                fillOpacity: 0,
+                label : "",
+                cursor: "pointer"
+            }})
+
+        });
+
+
+       map.addLayer(rectang2);
+// ====================================================
+
+// Layer ciudad
+
+// ===================================================
+     if (lyc == "y") { seve = true} else { seve = false}
+
+     ciudad = new OpenLayers.Layer.Vector(etiq[8], {
+            'displayInLayerSwitcher':true, 'visibility': seve,
+            styleMap: new OpenLayers.StyleMap({'default':{
+pointRadius: "${radio}",
+labelXOffset: "${offx}",
+labelYOffset: "${offy}",
+                fillOpacity: 1,
+//                    fillColor: "#FFFFFF",
+//                    strokeColor: "#000000",
+                strokeWidth : 0,
+                label : "${name}",
+                fontFamily: "Arial",
+                fontColor: "#000000",
+                fontSize: 11,
+                fontWeight: "normal",
+                labelAlign: "${align}" ,
+                cursor: "pointer" }})
+     });
+
+     map.addLayer(ciudad)
+// =======================================================
+      ciudad2 = new OpenLayers.Layer.Vector("ciudad2", {'displayInLayerSwitcher':false,
+            'displayInLayerSwitcher':false, 'visibility': true,
+            styleMap: new OpenLayers.StyleMap({'default':{
+
+                strokeOpacity: 0,
+                fillOpacity: 0,
+                label : "",
+                cursor: "pointer"
+            }})
+
+        });
+
+
+       map.addLayer(ciudad2);
+// **************************************************
+// INVISIBLE HECHOS, MOV Y LEYENDA
+// Layer hechos
+
+// ===================================================
+    // if (lye == "y") { seve = true} else { seve = false}
+     seve = false;
+     hecho = new OpenLayers.Layer.Vector(etiq[9], {
+            'displayInLayerSwitcher':false, 'visibility': seve,
+            styleMap: new OpenLayers.StyleMap({'default':{
+
+                externalGraphic: "https://" + estaurlgd + "/map/atlas/ico/ico" + "${nimg}" + ".png",
+          //      graphicXOffset: "${goffx}",
+          //      graphicYOffset: "${goffy}",
+labelXOffset: "${offx}",
+labelYOffset: "${offy}",
+                pointerEvents: "visiblePainted",
+                graphicWidth: 16,
+                graphicHeight: 16,                     
+           //         graphicZIndex: 11,
+                label : "${name2}",
+                fontFamily: "Verdana",
+                fontColor: "#000000",
+                fontSize: 9,
+                fontWeight: "bold",
+                labelAlign: "${align}" ,
+                cursor: "pointer" }})
+     });
+
+     map.addLayer(hecho);
+// =======================================================
+      hecho2 = new OpenLayers.Layer.Vector("hecho2", {'displayInLayerSwitcher':false,
+            'displayInLayerSwitcher':false, 'visibility': false,
+            styleMap: new OpenLayers.StyleMap({'default':{
+
+                strokeOpacity: 0,
+                fillOpacity: 0,
+                label : "",
+                cursor: "pointer"
+            }})
+
+        });
+
+      map.addLayer(hecho2);
+// =======================================================
+// Layer movimiento
+
+     // if (lym == "y") { seve = true} else { seve = false}
+     seve = false;
+     movimiento = new OpenLayers.Layer.Vector(etiq[11], {
+            'displayInLayerSwitcher':false, 'visibility': seve,
+            styleMap: new OpenLayers.StyleMap({'default':{
+                fillOpacity: 1,
+                strokeWidth : "${strwidth}" ,
+                strokeColor:  "${scolor}" ,
+                strokeDashstyle:  "${sstyle}" ,
+                cursor: "pointer" }})
+     });
+
+     map.addLayer(movimiento)
+
+// =======================================================
+// Layer leyenda
+
+   // if (lyg == "y") { seve = true} else { seve = false}
+    seve = false;
+       leyenda= new OpenLayers.Layer.Vector(etiq[12],{'displayInLayerSwitcher':false, 'visibility': seve});
+       map.addLayer(leyenda);
+
+// **********************************************
+// Layer leyenda2
+
+     if (ly2 == "y") { seve = true} else { seve = false}
+      
+       leyenda2= new OpenLayers.Layer.Vector(etiq[12] + "KML",{'displayInLayerSwitcher':false, 'visibility': seve});
+       map.addLayer(leyenda2);
+
+// **********************************************
+// Layer contribucion
+put_contribution(ct);
+// **********************************************
+// SelectControl
+var loslayers1 = [datadicional, rectang,rectang2,ciudad2, hecho2];
+var loslayers2 = [rectang,rectang2,ciudad2, hecho2];
+loadselectcontrol(loslayers1, loslayers2);
+
+// ***********************************************
+
+
+
+// =================================================
+/*
+if(navigator.userAgent.match(/iPad/i) != null){
+this.touchhandler = new TouchHandler( map, 4 );
+}  
+*/
+
+// Fin definicion Layers
+
+// Ponemos fecha inicial
+
+// ***********************************************
+var zoom = 2;
+var x = 0;
+var y = 25;
+         setcontroles(x, y, zoom);
+// ***********************************************
+submitdate(di, true);
+// coloca_fecha(di);
+// colocalink();
+
+if (Ventana == "t") {pasatimeline()}
+try {colocalink();} catch(err) { }
+
+}
+
+// ----------------------------------------------------------
+</script>
+
+
+</head>
+<body onload="carga()" onresize="coloca_fecha(document.Fecha.fechat.value); colocalink()" style="opacity: 0; overflow: hidden;"><script>
+setTimeout(() => {      
+  let input = document.querySelectorAll('[name="Fecha"]')[0]
+  let date = document.querySelectorAll('[name="sliderValue2"]')[0]
+  let mapEl = document.querySelectorAll('#map')[0]
+
+  input.style.display = 'none'
+  date.style.display = 'none'
+  
+  mapEl.style.height = '100%'
+  mapEl.style.top = '0'
+
+  map.zoomTo(3)
+  map.setCenter([2896115.2958004, 5302161.5318014])
+  
+  map.updateSize()
+
+  document.getElementsByTagName('body')[0].style.opacity = '1';
+  document.getElementsByTagName('body')[0].style.overflow = 'hidden';
+
+
+
+  window.addEventListener("message", (event) => {
+    var data = event.data;
+    if (!!data.year) {
+      putfecha(parseInt(data.year))
+    }
+  }, false)
+
+}, 1000)
+</script>
+<style>
+#OpenLayers_Control_MaximizeDiv {
+  display: none;
+}
+#OpenLayers_Control_PanZoomBar_3 {
+  display: none;
+}
+</style>
+
+
+<script>
+putidiom(lng);
+</script>
+
+<!-- Titulo -->
+<!--
+<div name="tit" id="titid" align="center" style="font-family:Arial; font-size:30px; font-weight: normal; color:#000080; padding-top: 10px; white-space: nowrap">
+<script>
+document.write(etiq[0]);
+-->
+
+
+
+
+<!-- Mapa -->
+<script>
+document.write('<form name="mapa">');
+
+document.write('<div id="map" style="background-color:#F0F0F0; position:absolute; top:60px; left:0px; width: ' + w + '%; height:' + h + 'px"></div>')
+
+// ============================================
+var pointer= "pointer";
+document.write('<input name="sliderValue2" type="text" readonly="readonly" style="font-family:Arial; font-weight:bold; font-size:18; color:red; text-align:center; background-color:white; border-color:transparent; border-width:0; position:absolute; left:' + (screen.width - 120) + 'px; top:62px; width:105"'  + '">')
+
+document.write('</form>');
+</script>
+
+<!-- Search -->
+<script>
+document.write('<div style="visibility:hidden;position:absolute; left:' + (offx - 200) + 'px; top:33px;  height:23px; width:140px; text-align:right; border-color:transparent; border-width:0 ">')
+document.write(etiq[2]);
+document.write('</div>');
+
+document.write('<div style="visibility:hidden;font-family:Arial; font-size:14px; ">');
+
+/*
+document.write('<form id="frmSearch" name="fsearch" action="javascript:searchLiteral()" accept-charset="UTF-8">');
+    document.write('<input type="text" id="txtSearch" name="txtSearch"  title="' + etiq[20] + '" onkeyup="searchSuggest();" autocomplete="off" style="position:absolute; left:' + (offx - 50) + 'px; top:30px; width:200px" />');
+    document.write('<input type="image" id="cmdSearch" name="cmdSearch" value="Search" title="' + etiq[21] + '" src="http://' + estaurlgd + '/map/atlas/img/busca.jpg" width="22"; height="22"; border="0px" style="position:absolute; left:' + (offx + 155) + 'px; top:30px;" /><br />');
+    document.write('<div id="search_suggest" style="position:absolute; left:' + (offx - 50) + 'px; top:60px; background:transparent; border:transparent 1px; width: 200px; "  >');
+    document.write('</div>');
+document.write('</form>');
+*/
+
+document.write('<form name="busqueda">');
+
+document.write('<select name="interv" style="visibility:hidden; position:absolute; margin-left:' + (offx + 70) + 'px; top:3px; " onChange="centrar(map.getZoom())">');
+document.write('</select>');
+/*
+document.write('<select name="categoria" title="' + etiq[10] + '" style="visibility:hidden; position:absolute; left:' + (offx - 50) + 'px; top:3px; "  onChange=document.fsearch.txtSearch.value="" ><option value="0" selected>' + etiq[7] + '</option><option value="1">' + etiq[8] + '</option><option value="2">' + etiq[9] + '</option>');
+document.write('</select>');
+*/
+document.write('</form>');
+
+document.write('</div>');
+
+</script>
+
+
+
+<!-- Fechas -->
+<script>
+document.write('<div style="font-family:Arial; font-size:14px; ">');
+document.write('<form name="Fecha" >');
+
+// var pointer= "pointer";
+
+document.write('<img name="menos100v" src="http://' + estaurlgd + '/map/atlas/img/menos100v.jpg" style="position:absolute; margin-left: ' + (offx + 370) + 'px; top:30px; width:25px; height:25px; " >');
+document.write('<img name="menos10v" src="http://' + estaurlgd + '/map/atlas/img/menos10v.jpg" style="position:absolute; margin-left: ' + (offx + 400) + 'px; top:30px; width:25px; height:25px; " >');
+document.write('<img name="menos1v" src="http://' + estaurlgd + '/map/atlas/img/menos1v.jpg" style="position:absolute; margin-left: ' + (offx + 430) + 'px; top:30px; width:25px; height:25px; " >');
+
+document.write('<img name="menos100" src="http://' + estaurlgd + '/map/atlas/img/menos100.jpg" title="' + etiq[22] + '" style="position:absolute; margin-left: ' + (offx + 370) + 'px; top:30px; width:25px; height:25px; " onClick="menos(100);" onmouseover="this.style.cursor=' + pointer + '">');
+document.write('<img name="menos10" src="http://' + estaurlgd + '/map/atlas/img/menos10.jpg" title="' + etiq[23] + '" style="position:absolute; margin-left: ' + (offx + 400) + 'px; top:30px; width:25px; height:25px; " onClick="menos(10);" onmouseover="this.style.cursor=' + pointer + '">');
+document.write('<img name="menos1" src="http://' + estaurlgd + '/map/atlas/img/menos1.jpg" title="' + etiq[24] + '" style="position:absolute; margin-left: ' + (offx + 430) + 'px; top:30px; width:25px; height:25px; " onClick="menos(1);" onmouseover="this.style.cursor=' + pointer + '">');
+
+document.write('<input type="text" name="fechat" value="' + di + '" title="' + etiq[25] + '" onkeypress="return submitenter(this.value, event)" onKeydown="putanimado()" ondblclick="submitdate(this.value, false);" style="position:absolute; left:' + (offx + 465) + 'px; top:31px; width:65px; height:23px; text-align:center" border:1px >')
+
+document.write('<img name="mas1v" src="http://' + estaurlgd + '/map/atlas/img/mas1v.jpg" style="position:absolute; margin-left: ' + (offx + 540) + 'px; top:30px; width:25px; height:25px; " >');
+document.write('<img name="mas10v" src="http://' + estaurlgd + '/map/atlas/img/mas10v.jpg" style="position:absolute; margin-left: ' + (offx + 570) + 'px; top:30px; width:25px; height:25px; " >');
+document.write('<img name="mas100v" src="http://' + estaurlgd + '/map/atlas/img/mas100v.jpg" style="position:absolute; margin-left: ' + (offx + 600) + 'px; top:30px; width:25px; height:25px; " >');
+
+document.write('<img name="mas1" src="http://' + estaurlgd + '/map/atlas/img/mas1.jpg" title="' + etiq[26] + '" style="position:absolute; margin-left: ' + (offx + 540) + 'px; top:30px; width:25px; height:25px; " onClick="mas(1);" onmouseover="this.style.cursor=' + pointer + '">');
+document.write('<img name="mas10" src="http://' + estaurlgd + '/map/atlas/img/mas10.jpg" title="' + etiq[27] + '" style="position:absolute; margin-left: ' + (offx + 570) + 'px; top:30px; width:25px; height:25px; " onClick="mas(10);" onmouseover="this.style.cursor=' + pointer + '">');
+document.write('<img name="mas100" src="http://' + estaurlgd + '/map/atlas/img/mas100.jpg" title="' + etiq[28] + '" style="position:absolute; margin-left: ' + (offx + 600) + 'px; top:30px; width:25px; height:25px; " onClick="mas(100);" onmouseover="this.style.cursor=' + pointer + '">');
+
+document.write('<button type="button" title="' + etiq[29] + '" style="position:absolute; left: ' + (offx + 640) + 'px; top:30px; height:25px; align:middle" onClick="submitdate(document.Fecha.fechat.value, false);" onmouseover="this.style.cursor=' + pointer + '"><img name="imagenr" src="http://' + estaurlgd + '/map/atlas/img/refresh_blue.gif" border="0" width=16 height=16></button>');
+
+if(navigator.userAgent.match(/iPad/i) != null) {
+document.write('<button type="button" style="font-size:22;text-align:middle;position:absolute; left:20px; top:90px; width:60px; height:40px;" onClick="pluszoom()">+</button>');
+// document.write('<button type="button" <img name="ipadup" src="http://' + estaurlgd + '/map/atlas/img/ipadup.jpg?n=3" style="position:absolute; margin-left:20px; top:90px; width:40px; height:40px; " onClick="pluszoom();" >');
+document.write('<button type="button" style="font-size:22;position:absolute; margin-left:20px; top:130px; width:60px; height:40px;" onClick="minuszoom()">-</button>');
+// document.write('<img name="ipaddown" src="http://' + estaurlgd + '/map/atlas/img/ipaddown.jpg?n=3" style="position:absolute; margin-left:20px; top:130px; width:40px; height:40px; " onClick="minuszoom();" >');
+}
+
+document.write('</form>');
+document.write('</div>');
+
+</script>
+
+<!-- Link -->
+<script>
+document.write('<form name="externo" style="white-space: nowrap">');
+
+if(navigator.userAgent.match(/iPad/i) != null) {
+  document.write('<input type="text" name="enlace"  id="enlaceid" value="" onContextMenu="finzoom(); select_all(this.name);" onClick="finzoom(); select_all(this.name);" title="' + etiq[34] + '" style="visibility:hidden;position:absolute; left:570; top:' + (0) + '; width:300px; font-family:Arial; font-size:12;" >');
+} else {
+  document.write('<input type="text" name="enlace" id="enlaceid"  value="" readonly="readonly" onContextMenu="finzoom(); select_all(this.name);" onClick="finzoom(); select_all(this.name);" title="' + etiq[34] + '" style="visibility:hidden;position:absolute; left:570; top:' + (0) + '; width:300px; font-family:Arial; font-size:12;" >');
+}
+  document.write('<input type="text" name="txtenlace" id="txtenlaceid" value=' + etiq[4] + ' readonly="readonly" style="visibility:hidden;font-weight: bold;position:absolute; left:505; top:' + (0) + '; width:60; text-align: right; background-color:transparent; border-color:transparent; border-width:0;" >');
+
+if(navigator.userAgent.match(/iPad/i) == null) {
+  document.write('<button type="button" name="embed" style="visibility:hidden;position:absolute; font-family:Arial; font-size:12; left:800; top:' + (h + 60) + 'px; color:blue ; " onmouseover="this.style.cursor=' + pointer + '" onClick="irlink();">' + etiq[1] + '</button>');
+}
+
+document.write('</form>');
+</script>
+
+<!-- Help -->
+<script>
+document.write('<form name="ayuda" >');
+  document.write('<img src="http://' + estaurlgd + '/map/atlas/img/help_icon.jpg" title="' + etiq[30] + '" style="visibility:hidden;position:absolute; margin-left: ' + (offx + 700) + 'px; top:30px; width:27px; height:27px; text-align:center" onClick="irhelp();" onmouseover="this.style.cursor=' + pointer + '">');
+// document.write('<img src="http://' + estaurlgd + '/map/atlas/img/help_icon.jpg" style="position:absolute; margin-left: ' + (offx + 700) + 'px; top:80px; width:27px; height:27px; text-align:center" onmouseover="puthelp();" onmouseout="outhelp();">');
+// document.write('<img src="http://' + estaurlgd + '/map/atlas/img/helpup.jpg" name="helpup" style="visibility:hidden; position:absolute; margin-left: ' + (offx + 248) + 'px; top:30px; text-align:center" >');
+// document.write('<img src="http://' + estaurlgd + '/map/atlas/img/helpdown.jpg" name="helpdown" style="visibility:hidden; position:absolute; margin-left: ' + (offx + 58) + 'px; top:110px; text-align:center" >');
+//  document.write('<img src="http://' + estaurlgd + '/map/atlas/img/help_' + lng + '.jpg" name="helptxt" style="visibility:hidden; position:absolute; margin-left: ' + (offx - 70) + 'px; top:120px; text-align:center" >');
+document.write('</form>');
+
+</script>
+
+<script>
+document.write('<div>')
+document.write('<form name="dates" title="' + etiq[31] + '" style="visibility:hidden;position:absolute; top:' + (h + 60) + 'px; left:0px; white-space: nowrap">');
+
+document.write('<input type="text" name="nom" border="0" value="' + etiq[3] + '" readonly="readonly" style="width:50; border-width:0" >' +
+           '<input type="text" name="T0" id="T0" style="width:40" ondblclick="validar2(this,0)" onkeypress="validar(event, this,0)">' +
+           '<input type="text" name="T1" id="T1" style="width:40" ondblclick="validar2(this,1)" onkeypress="validar(event, this,1)">' +
+           '<input type="text" name="T2" id="T2" style="width:40" ondblclick="validar2(this,2)" onkeypress="validar(event, this,2)">' +
+           '<input type="text" name="T3" id="T3" style="width:40" ondblclick="validar2(this,3)" onkeypress="validar(event, this,3)">' +
+           '<input type="text" name="T4" id="T4" style="width:40" ondblclick="validar2(this,4)" onkeypress="validar(event, this,4)">' +
+           '<input type="text" name="T5" id="T5" style="width:40" ondblclick="validar2(this,5)" onkeypress="validar(event, this,5)">' +
+           '<input type="text" name="T6" id="T6" style="width:40" ondblclick="validar2(this,6)" onkeypress="validar(event, this,6)">' +
+           '<input type="text" name="T7" id="T7" style="width:40" ondblclick="validar2(this,7)" onkeypress="validar(event, this,7)">' +
+           '<input type="text" name="T8" id="T8" style="width:40" ondblclick="validar2(this,8)" onkeypress="validar(event, this,8)">' +
+           '<input type="text" name="T9" id="T9" style="width:40" ondblclick="validar2(this,9)" onkeypress="validar(event, this,9)">');
+
+document.write('</form>');
+document.write('</div>');
+</script>
+
+
+
+<!-- Contribuciones -->
+<script> 
+/*
+document.write('<form name="frmcontri">');
+if (getInternetExplorerVersion() > -1 && getInternetExplorerVersion() < 9) {
+document.write('<select name="contribut" disabled="disabled" style="visibility:visible; position:absolute; width:150px; left:' + (680) + 'px; top:' + (h + 60) + 'px; " onChange="getcontribution(this.value)">');
+} else {
+document.write('<select name="contribut" style="visibility:visible; position:absolute; width:150px; left:' + (680) + 'px; top:' + (h + 60) + 'px; " onChange="getcontribution(this.value)">');
+}
+document.write('</form>');
+*/
+</script> 
+
+
+
+</body>

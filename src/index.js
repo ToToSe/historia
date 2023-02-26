@@ -13,7 +13,7 @@ script.onload = function () {
     document.getElementById('root')
   );
 };
-script.src = 'https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js';
+script.src = '/timeline.js';
 
 document.head.appendChild(script); //or something of the likes
 
