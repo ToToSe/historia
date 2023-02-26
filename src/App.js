@@ -65,7 +65,7 @@ const eras = [
   },
 ]
 
-const API_URL = (window.document.domain.includes('aws') ? 'http://ec2-18-168-148-133.eu-west-2.compute.amazonaws.com' : 'http://localhost:8080')
+const API_URL = (window.document.domain.includes('localhost') ? 'http://localhost:80' : '/')
 
 function App() {
   const timelineRef = useRef(null)
