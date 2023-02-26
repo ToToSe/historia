@@ -210,7 +210,8 @@ app.get('/wiki', (req, res) => {
             let url = "https://upload.wikimedia.org/wikipedia/commons/"
             e.href = url + img.src.split('/')[6] + '/' + img.src.split('/')[7] +'/' + img.src.split('/')[8]
           } else {
-            e.href = e.href.replace('http://localhost:8080', 'https://fr.wikipedia.org').replace('http://historia-io.herokuapp.com', 'https://fr.wikipedia.org')
+            var ss = e.href.split('/')
+            e.href = 'https://fr.wikipedia.org/wiki/' + ss[ss.length - 1]
           }
           e.target = '_blank'
         }

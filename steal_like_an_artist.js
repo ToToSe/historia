@@ -9,7 +9,7 @@ const dates = [-3000, -2900, -2666, -2600, -2500, -2400, -2344, -2280, -2279, -2
 
 setInterval(function() {
     console.log("timer that keeps nodejs processing running");
-}, 1000 * 60 * 60);
+}, 1000 * 60 * 60 * 60);
 
 async function download(url, v0 = false) {
     return new Promise(async (resolve, reject) => {
@@ -90,4 +90,4 @@ async function generation(indexYear) {
     }
 }
 
-generation(535)
+generation(630)
