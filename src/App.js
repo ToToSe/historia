@@ -65,7 +65,7 @@ const eras = [
   },
 ]
 
-const API_URL = (window.document.domain.includes('localhost') ? 'http://localhost:80' : '/')
+const API_URL = (window.document.domain.includes('localhost') ? 'http://localhost:80' : window.location.origin)
 
 function App() {
   const timelineRef = useRef(null)
